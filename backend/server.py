@@ -25,7 +25,7 @@ delete_old_files()
 
 
 # Chemin vers le répertoire frontend où se trouve index.html
-FRONTEND_FOLDER = "../frontend"  # Répertoire parent du dossier backend
+FRONTEND_FOLDER = os.path.join(os.path.dirname(__file__), "../frontend")
 
 class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
     def do_GET(self):
