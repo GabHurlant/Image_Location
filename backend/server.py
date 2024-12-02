@@ -9,6 +9,10 @@ MAX_FILE_AGE = 60
 def delete_old_files():
     current_time = time.time()
     for filename in os.listdir(UPLOAD_FOLDER):
+        # Ignorer .gitignore et d'autres fichiers sensibles
+        if filename == ".gitignore":
+            continue  # Passer ce fichier
+
         file_path = os.path.join(UPLOAD_FOLDER, filename)
         if os.path.isfile(file_path):
             file_age = current_time - os.path.getctime(file_path)
@@ -19,8 +23,9 @@ def delete_old_files():
 # Appeler la fonction pour supprimer les fichiers vieux de plus de 1 minute
 delete_old_files()
 
+
 # Chemin vers le répertoire frontend où se trouve index.html
-FRONTEND_FOLDER = "../frontend"  # Répertoire parent du dossier backend
+FRONTEND_FOLDER = os.path.join(os.path.dirname(__file__), "../frontend")
 
 class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
     def do_GET(self):
