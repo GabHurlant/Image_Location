@@ -3,7 +3,7 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 import cgi
 import time
 
-UPLOAD_FOLDER = "uploads"
+UPLOAD_FOLDER = os.path.join(os.path.dirname(__file__), "uploads")
 MAX_FILE_AGE = 60
 
 def delete_old_files():
