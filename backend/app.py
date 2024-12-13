@@ -34,7 +34,7 @@ if image_files:
             debug(f"Nombre de tags EXIF trouvés : {len(tags)}")
             
             # Générer le contenu HTML
-            html_content = "<html><head><title>Métadonnées EXIF</title></head><body>"
+            html_content = "<html><meta charset='utf-8' /><head><title>Métadonnées EXIF</title></head><body>"
             html_content += f"<h1>Métadonnées EXIF pour : {os.path.basename(image_path)}</h1><ul>"
             
             if tags:

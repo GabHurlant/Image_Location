@@ -3,6 +3,7 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 from email.parser import BytesParser
 from email.policy import default
 import time
+import subprocess
 
 UPLOAD_FOLDER = os.path.join(os.path.dirname(__file__), "uploads")
 MAX_FILE_AGE = 60
@@ -118,3 +119,13 @@ def run(server_class=HTTPServer, handler_class=SimpleHTTPRequestHandler, port=80
 
 if __name__ == "__main__":
     run()
+
+
+# Chemin vers le script Python à exécuter
+script_path = "/backend/app.py"
+# Exécuter le script
+result = subprocess.run(["python", script_path], capture_output=True, text=True)
+
+# Afficher la sortie du script
+print(result.stdout)
+print(result.stderr)
