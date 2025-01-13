@@ -5,14 +5,18 @@ import exifread
 
 current_directory = os.getcwd()
 print(f"[DEBUG] Répertoire de travail actuel : {current_directory}")
+
 # Fonction de débogage
 def debug(message):
     print(f"[DEBUG] {message}")
 
 # Chemin du dossier contenant les images
-path = "backend/uploads/"
+path = os.path.join(current_directory, "uploads/")
 
 debug(f"Chemin défini : {path}")
+
+# Afficher le contenu du dossier pour débogage
+debug(f"Contenu du dossier : {os.listdir(path)}")
 
 image_files = glob.glob(os.path.join(path, "*.jpg")) + \
               glob.glob(os.path.join(path, "*.jpeg")) + \
