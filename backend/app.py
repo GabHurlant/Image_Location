@@ -11,7 +11,7 @@ def debug(message):
     print(f"[DEBUG] {message}")
 
 # Chemin du dossier contenant les images
-path = os.path.join(current_directory, "uploads/")
+path = os.path.join(current_directory, "backend/uploads/")
 
 debug(f"Chemin défini : {path}")
 
