@@ -11,12 +11,17 @@ def debug(message):
     print(f"[DEBUG] {message}")
 
 # Chemin du dossier contenant les images
-path = os.path.join(current_directory, "backend/uploads/")
+path = os.path.join(current_directory, "uploads/")
 
 debug(f"Chemin défini : {path}")
 
 # Afficher le contenu du dossier pour débogage
-debug(f"Contenu du dossier : {os.listdir(path)}")
+try:
+    debug(f"Contenu du dossier : {os.listdir(path)}")
+except FileNotFoundError as e:
+    debug(f"Erreur : {e}")
+    print(f"Erreur : {e}")
+    exit(1)
 
 image_files = glob.glob(os.path.join(path, "*.jpg")) + \
               glob.glob(os.path.join(path, "*.jpeg")) + \
@@ -38,7 +43,7 @@ if image_files:
             debug(f"Nombre de tags EXIF trouvés : {len(tags)}")
             
             # Générer le contenu HTML
-            html_content = "<html><head><title>Métadonnées EXIF</title></head><body>"
+            html_content = "<html><meta charset='utf-8' /><head><title>Métadonnées EXIF</title></head><body>"
             html_content += f"<h1>Métadonnées EXIF pour : {os.path.basename(image_path)}</h1><ul>"
             
             if tags:
