@@ -1,2 +1,3 @@
 node_modules/
 backend/exif_metadata.html
+backend/server.log
