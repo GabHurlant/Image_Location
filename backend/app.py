@@ -16,7 +16,12 @@ path = os.path.join(current_directory, "uploads/")
 debug(f"Chemin défini : {path}")
 
 # Afficher le contenu du dossier pour débogage
-debug(f"Contenu du dossier : {os.listdir(path)}")
+try:
+    debug(f"Contenu du dossier : {os.listdir(path)}")
+except FileNotFoundError as e:
+    debug(f"Erreur : {e}")
+    print(f"Erreur : {e}")
+    exit(1)
 
 image_files = glob.glob(os.path.join(path, "*.jpg")) + \
               glob.glob(os.path.join(path, "*.jpeg")) + \

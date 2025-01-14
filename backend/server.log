@@ -1,0 +1,37 @@
+2025-01-14 16:25:54,049 - INFO - Supprimé : C:\Users\Utilisateur\OneDrive\Bureau\Iut\3emeAnnee\Cyber Sécu numérique\Image_Location\backend\uploads\Mother_fucking_Racoon.jpg
+2025-01-14 16:25:54,077 - INFO - Serveur démarré sur http://localhost:8080
+2025-01-14 16:26:18,652 - DEBUG - Exécution du script : C:\Users\Utilisateur\OneDrive\Bureau\Iut\3emeAnnee\Cyber Sécu numérique\Image_Location\backend\app.py
+2025-01-14 16:26:19,164 - DEBUG - Résultat stdout : [DEBUG] Répertoire de travail actuel : C:\Users\Utilisateur\OneDrive\Bureau\Iut\3emeAnnee\Cyber Sécu numérique\Image_Location\backend
+[DEBUG] Chemin défini : C:\Users\Utilisateur\OneDrive\Bureau\Iut\3emeAnnee\Cyber Sécu numérique\Image_Location\backend\backend/uploads/
+
+2025-01-14 16:26:19,164 - DEBUG - Résultat stderr : Traceback (most recent call last):
+  File "C:\Users\Utilisateur\OneDrive\Bureau\Iut\3emeAnnee\Cyber Sécu numérique\Image_Location\backend\app.py", line 19, in <module>
+    debug(f"Contenu du dossier : {os.listdir(path)}")
+                                  ^^^^^^^^^^^^^^^^
+FileNotFoundError: [WinError 3] Le chemin d’accès spécifié est introuvable: 'C:\\Users\\Utilisateur\\OneDrive\\Bureau\\Iut\\3emeAnnee\\Cyber Sécu numérique\\Image_Location\\backend\\backend/uploads/'
+
+2025-01-14 16:26:19,164 - ERROR - Le fichier exif_metadata.html n'a pas été généré.
+2025-01-14 16:28:34,424 - DEBUG - Exécution du script : C:\Users\Utilisateur\OneDrive\Bureau\Iut\3emeAnnee\Cyber Sécu numérique\Image_Location\backend\app.py
+2025-01-14 16:28:34,865 - DEBUG - Résultat stdout : [DEBUG] Répertoire de travail actuel : C:\Users\Utilisateur\OneDrive\Bureau\Iut\3emeAnnee\Cyber Sécu numérique\Image_Location\backend
+[DEBUG] Chemin défini : C:\Users\Utilisateur\OneDrive\Bureau\Iut\3emeAnnee\Cyber Sécu numérique\Image_Location\backend\backend/uploads/
+
+2025-01-14 16:28:34,865 - DEBUG - Résultat stderr : Traceback (most recent call last):
+  File "C:\Users\Utilisateur\OneDrive\Bureau\Iut\3emeAnnee\Cyber Sécu numérique\Image_Location\backend\app.py", line 19, in <module>
+    debug(f"Contenu du dossier : {os.listdir(path)}")
+                                  ^^^^^^^^^^^^^^^^
+FileNotFoundError: [WinError 3] Le chemin d’accès spécifié est introuvable: 'C:\\Users\\Utilisateur\\OneDrive\\Bureau\\Iut\\3emeAnnee\\Cyber Sécu numérique\\Image_Location\\backend\\backend/uploads/'
+
+2025-01-14 16:28:34,865 - ERROR - Le fichier exif_metadata.html n'a pas été généré.
+2025-01-14 16:28:49,378 - INFO - Supprimé : C:\Users\Utilisateur\OneDrive\Bureau\Iut\3emeAnnee\Cyber Sécu numérique\Image_Location\backend\uploads\Mother_fucking_Racoon.jpg
+2025-01-14 16:28:49,413 - INFO - Serveur démarré sur http://localhost:8080
+2025-01-14 16:28:58,809 - DEBUG - Exécution du script : C:\Users\Utilisateur\OneDrive\Bureau\Iut\3emeAnnee\Cyber Sécu numérique\Image_Location\backend\app.py
+2025-01-14 16:28:59,159 - DEBUG - Résultat stdout : [DEBUG] Répertoire de travail actuel : C:\Users\Utilisateur\OneDrive\Bureau\Iut\3emeAnnee\Cyber Sécu numérique\Image_Location\backend
+[DEBUG] Chemin défini : C:\Users\Utilisateur\OneDrive\Bureau\Iut\3emeAnnee\Cyber Sécu numérique\Image_Location\backend\backend/uploads/
+
+2025-01-14 16:28:59,160 - DEBUG - Résultat stderr : Traceback (most recent call last):
+  File "C:\Users\Utilisateur\OneDrive\Bureau\Iut\3emeAnnee\Cyber Sécu numérique\Image_Location\backend\app.py", line 19, in <module>
+    debug(f"Contenu du dossier : {os.listdir(path)}")
+                                  ^^^^^^^^^^^^^^^^
+FileNotFoundError: [WinError 3] Le chemin d’accès spécifié est introuvable: 'C:\\Users\\Utilisateur\\OneDrive\\Bureau\\Iut\\3emeAnnee\\Cyber Sécu numérique\\Image_Location\\backend\\backend/uploads/'
+
+2025-01-14 16:28:59,160 - ERROR - Le fichier exif_metadata.html n'a pas été généré.
