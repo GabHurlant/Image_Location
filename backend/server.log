@@ -35,3 +35,75 @@ FileNotFoundError: [WinError 3] Le chemin d’accès spécifié est introuvable: 'C:\
 FileNotFoundError: [WinError 3] Le chemin d’accès spécifié est introuvable: 'C:\\Users\\Utilisateur\\OneDrive\\Bureau\\Iut\\3emeAnnee\\Cyber Sécu numérique\\Image_Location\\backend\\backend/uploads/'
 
 2025-01-14 16:28:59,160 - ERROR - Le fichier exif_metadata.html n'a pas été généré.
+2025-01-14 16:34:19,672 - INFO - Supprimé : C:\Users\Utilisateur\OneDrive\Bureau\Iut\3emeAnnee\Cyber Sécu numérique\Image_Location\backend\uploads\Mother_fucking_Racoon.jpg
+2025-01-14 16:34:19,701 - INFO - Serveur démarré sur http://localhost:8080
+2025-01-14 16:34:30,935 - DEBUG - Exécution du script : C:\Users\Utilisateur\OneDrive\Bureau\Iut\3emeAnnee\Cyber Sécu numérique\Image_Location\backend\app.py
+2025-01-14 16:34:31,422 - DEBUG - Résultat stdout : [DEBUG] Répertoire de travail actuel : C:\Users\Utilisateur\OneDrive\Bureau\Iut\3emeAnnee\Cyber Sécu numérique\Image_Location\backend
+[DEBUG] Chemin défini : C:\Users\Utilisateur\OneDrive\Bureau\Iut\3emeAnnee\Cyber Sécu numérique\Image_Location\backend\uploads/
+[DEBUG] Contenu du dossier : ['.gitignore', 'Mother_fucking_Racoon.jpg']
+[DEBUG] Fichiers trouvés : ['C:\\Users\\Utilisateur\\OneDrive\\Bureau\\Iut\\3emeAnnee\\Cyber Sécu numérique\\Image_Location\\backend\\uploads\\Mother_fucking_Racoon.jpg']
+[DEBUG] Fichier sélectionné : C:\Users\Utilisateur\OneDrive\Bureau\Iut\3emeAnnee\Cyber Sécu numérique\Image_Location\backend\uploads\Mother_fucking_Racoon.jpg
+[DEBUG] Lecture des métadonnées EXIF en cours...
+[DEBUG] Nombre de tags EXIF trouvés : 57
+[DEBUG] Tag trouvé : Image ImageWidth = 4000
+[DEBUG] Tag trouvé : Image ImageLength = 1848
+[DEBUG] Tag trouvé : Image Make = samsung
+[DEBUG] Tag trouvé : Image Model = Galaxy S24+
+[DEBUG] Tag trouvé : Image Orientation = Rotated 90 CW
+[DEBUG] Tag trouvé : Image XResolution = 72
+[DEBUG] Tag trouvé : Image YResolution = 72
+[DEBUG] Tag trouvé : Image ResolutionUnit = Pixels/Inch
+[DEBUG] Tag trouvé : Image Software = S926BXXS3AXFE
+[DEBUG] Tag trouvé : Image DateTime = 2024:08:10 19:58:30
+[DEBUG] Tag trouvé : Image YCbCrPositioning = Centered
+[DEBUG] Tag trouvé : Image ExifOffset = 240
+[DEBUG] Tag trouvé : GPS GPSLatitudeRef = 
+[DEBUG] Tag trouvé : GPS GPSLatitude = [0/0, 0/0, 0/0]
+[DEBUG] Tag trouvé : GPS GPSLongitudeRef = 
+[DEBUG] Tag trouvé : GPS GPSLongitude = [0/0, 0/0, 0/0]
+[DEBUG] Tag trouvé : GPS GPSAltitudeRef = 0
+[DEBUG] Tag trouvé : GPS GPSAltitude = 0/0
+[DEBUG] Tag trouvé : Image GPSInfo = 746
+[DEBUG] Tag trouvé : Thumbnail ImageWidth = 512
+[DEBUG] Tag trouvé : Thumbnail ImageLength = 236
+[DEBUG] Tag trouvé : Thumbnail Compression = JPEG (old-style)
+[DEBUG] Tag trouvé : Thumbnail XResolution = 72
+[DEBUG] Tag trouvé : Thumbnail YResolution = 72
+[DEBUG] Tag trouvé : Thumbnail ResolutionUnit = Pixels/Inch
+[DEBUG] Tag trouvé : Thumbnail JPEGInterchangeFormat = 998
+[DEBUG] Tag trouvé : Thumbnail JPEGInterchangeFormatLength = 59938
+[DEBUG] Tag trouvé : EXIF ExposureTime = 1/50
+[DEBUG] Tag trouvé : EXIF FNumber = 9/5
+[DEBUG] Tag trouvé : EXIF ExposureProgram = Program Normal
+[DEBUG] Tag trouvé : EXIF ISOSpeedRatings = 160
+[DEBUG] Tag trouvé : EXIF ExifVersion = 0220
+[DEBUG] Tag trouvé : EXIF DateTimeOriginal = 2024:08:10 19:58:30
+[DEBUG] Tag trouvé : EXIF DateTimeDigitized = 2024:08:10 19:58:30
+[DEBUG] Tag trouvé : EXIF OffsetTime = -04:00
+[DEBUG] Tag trouvé : EXIF OffsetTimeOriginal = -04:00
+[DEBUG] Tag trouvé : EXIF ShutterSpeedValue = 1/50
+[DEBUG] Tag trouvé : EXIF ApertureValue = 169/100
+[DEBUG] Tag trouvé : EXIF BrightnessValue = 3/2
+[DEBUG] Tag trouvé : EXIF ExposureBiasValue = 0
+[DEBUG] Tag trouvé : EXIF MaxApertureValue = 169/100
+[DEBUG] Tag trouvé : EXIF MeteringMode = CenterWeightedAverage
+[DEBUG] Tag trouvé : EXIF Flash = Flash did not fire
+[DEBUG] Tag trouvé : EXIF FocalLength = 27/5
+[DEBUG] Tag trouvé : EXIF SubSecTime = 694
+[DEBUG] Tag trouvé : EXIF SubSecTimeOriginal = 694
+[DEBUG] Tag trouvé : EXIF SubSecTimeDigitized = 694
+[DEBUG] Tag trouvé : EXIF FlashPixVersion = 0100
+[DEBUG] Tag trouvé : EXIF ColorSpace = Uncalibrated
+[DEBUG] Tag trouvé : EXIF ExifImageWidth = 4000
+[DEBUG] Tag trouvé : EXIF ExifImageLength = 1848
+[DEBUG] Tag trouvé : EXIF ExposureMode = Auto Exposure
+[DEBUG] Tag trouvé : EXIF WhiteBalance = Auto
+[DEBUG] Tag trouvé : EXIF DigitalZoomRatio = 213/100
+[DEBUG] Tag trouvé : EXIF FocalLengthIn35mmFilm = 23
+[DEBUG] Tag trouvé : EXIF SceneCaptureType = Standard
+[DEBUG] Tag trouvé : EXIF ImageUniqueID = H50XLQE00SM
+[DEBUG] Écriture du contenu HTML dans 'exif_metadata.html'...
+[DEBUG] Les métadonnées EXIF ont été extraites avec succès.
+Les métadonnées EXIF ont été enregistrées dans 'exif_metadata.html'.
+
+2025-01-14 16:34:31,424 - DEBUG - Résultat stderr : 
