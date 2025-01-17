@@ -13,6 +13,7 @@ import flickrapi
 import requests
 import cv2
 import webbrowser
+from datetime import datetime
 
 # Paramètres de l'API Flickr
 api_key = '261be8e647c2c815285b36e961dea61c'  # Remplace par ta propre clé API
@@ -44,6 +45,57 @@ clear_flickr_images_directory()  # Supprimer les anciennes images dans flickr_im
 image_files = glob.glob(os.path.join(path, "*.jpg")) + \
               glob.glob(os.path.join(path, "*.jpeg")) + \
               glob.glob(os.path.join(path, "*.png"))
+
+# Fonction pour extraire les métadonnées EXIF
+def get_exif_tags(image_path):
+    with open(image_path, 'rb') as image_file:
+        return exifread.process_file(image_file, details=False)
+
+# Fonction pour extraire les données GPS
+def get_gps_metadata(image_path):
+    with open(image_path, 'rb') as image_file:
+        tags = exifread.process_file(image_file, details=False)
+        gps_info = {}
+        if 'GPS GPSLatitude' in tags and 'GPS GPSLongitude' in tags:
+            latitude = tags['GPS GPSLatitude']
+            longitude = tags['GPS GPSLongitude']
+            if latitude.values[0].num == 0 and longitude.values[0].num == 0:
+                gps_info['Latitude'] = 0
+                gps_info['Longitude'] = 0
+            else:
+                gps_info['Latitude'] = latitude
+                gps_info['Longitude'] = longitude
+        return gps_info
+
+# Fonction pour extraire la date et l'heure de la prise de la photo
+def get_photo_datetime(image_path):
+    with open(image_path, 'rb') as image_file:
+        tags = exifread.process_file(image_file, details=False)
+        if 'EXIF DateTimeOriginal' in tags:
+            return str(tags['EXIF DateTimeOriginal'])
+        else:
+            return "Date et heure non disponibles"
+
+# Fonction pour calculer le niveau de confiance basé sur les métadonnées EXIF et GPS
+def calculate_confidence_level(tags, gps_metadata):
+    confidence = 0
+
+    # Vérifier si des métadonnées EXIF sont présentes
+    if not tags:
+        return confidence  # Retourner 0 si aucune métadonnée EXIF n'est trouvée
+
+    # Vérifier la cohérence des dates et heures de prise de la photo
+    if 'EXIF DateTimeOriginal' in tags and 'EXIF DateTimeDigitized' in tags:
+        date_time_original = datetime.strptime(str(tags['EXIF DateTimeOriginal']), '%Y:%m:%d %H:%M:%S')
+        date_time_digitized = datetime.strptime(str(tags['EXIF DateTimeDigitized']), '%Y:%m:%d %H:%M:%S')
+        if date_time_original == date_time_digitized:
+            confidence += 50  # Ajouter 50 points si les dates et heures sont cohérentes
+
+    # Vérifier la géolocalisation
+    if gps_metadata and gps_metadata.get('Latitude') != 0 and gps_metadata.get('Longitude') != 0:
+        confidence += 50  # Ajouter 50 points si la géolocalisation est présente et valide
+
+    return confidence
 
 if image_files:
     # Trouver le fichier le plus récemment modifié
@@ -113,12 +165,27 @@ if image_files:
                 max_good_matches = len(good_matches)
                 best_match = flickr_image_path
 
+        # Lire les métadonnées EXIF et GPS
+        tags = get_exif_tags(image_path)
+        gps_metadata = get_gps_metadata(image_path)
+        photo_datetime = get_photo_datetime(image_path)
+        if gps_metadata and gps_metadata.get('Latitude') != 0 and gps_metadata.get('Longitude') != 0:
+            gps_info = f"<h2>Informations GPS :</h2><ul><li>Latitude: {gps_metadata.get('Latitude')}</li><li>Longitude: {gps_metadata.get('Longitude')}</li></ul>"
+        else:
+            gps_info = "<h2>Geolocalisation impossible</h2>"
+
+        # Calculer le niveau de confiance
+        confidence_level = calculate_confidence_level(tags, gps_metadata)
+
         # Générer le fichier HTML
         html_content = "<html><meta charset='utf-8'><head><title>Analyse Image</title>"
         html_content += "<link rel='stylesheet' href='../frontend/main.css'>"
         html_content += "</head><body>"
         html_content += f"<h1>Image analysée : {os.path.basename(image_path)}</h1>"
-        html_content += f"<img src='uploads/{os.path.basename(image_path)}' ' style='max-width:350px;height:auto;'>"
+        html_content += f"<img src='uploads/{os.path.basename(image_path)}' style='max-width:350px;height:auto;'>"
+        html_content += f"<h2>Date et heure de la photo : {photo_datetime}</h2>"
+        html_content += gps_info
+        html_content += f"<h2>Niveau de confiance : {confidence_level}/100</h2>"
         html_content += "<h2>Prédictions du modèle</h2><ul>"
         for rank, (imagenet_id, label, score) in enumerate(decoded[0], start=1):
             html_content += f"<li>{rank}. <strong>{label}</strong> (Score: {score:.4f})</li>"
@@ -128,7 +195,6 @@ if image_files:
             html_content += f"<h2>Meilleure correspondance Flickr</h2><img src='{best_match}' style='max-width:350px;height:auto;'>"
         else:
             html_content += "<h2>Aucune correspondance trouvée sur Flickr.</h2>"
-
         html_content += "</body></html>"
 
         with open("result.html", "w", encoding="utf-8") as html_file:
@@ -138,7 +204,7 @@ if image_files:
         webbrowser.open(f"file://{os.path.abspath('result.html')}")
 
     except Exception as e:
-        pass  # Ignore toute exception
+        pass 
 
 else:
     pass  # Aucun fichier trouvé, rien à faire

@@ -158,15 +158,6 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
                                     text=True
                                 )
 
-                                # Vérification du fichier généré
-                                html_file_path = "exif_metadata.html"
-                                if os.path.exists(html_file_path):
-                                    with open(html_file_path, "r", encoding="utf-8") as html_file:
-                                        exif_metadata_content = html_file.read()
-                                else:
-                                    logging.error(f"Le fichier {html_file_path} n'a pas été généré.")
-                                    exif_metadata_content = "<h2>Erreur : Le fichier exif_metadata.html est introuvable.</h2>"
-
                                 # Lire les métadonnées EXIF et GPS
                                 tags = get_exif_tags(file_path)
                                 gps_metadata = get_gps_metadata(file_path)
@@ -191,8 +182,6 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
 </head>
 <body>
     <h2>Fichier téléchargé : {filename}</h2>
-    <pre>{result.stdout}</pre>
-    {exif_metadata_content}
     {gps_info}
     <h2>Niveau de confiance : {confidence_level}/100</h2>
 </body>
