@@ -116,14 +116,14 @@ if image_files:
         # Générer le fichier HTML
         html_content = "<html><meta charset='utf-8'><head><title>Analyse Image</title></head><body>"
         html_content += f"<h1>Image analysée : {os.path.basename(image_path)}</h1>"
-        html_content += f"<img src='{image_path}' alt='Image analysée' style='max-width:500px;height:auto;'>"
+        html_content += f"<img src='uploads/{os.path.basename(image_path)}' ' style='max-width:350px;height:auto;'>"
         html_content += "<h2>Prédictions du modèle</h2><ul>"
         for rank, (imagenet_id, label, score) in enumerate(decoded[0], start=1):
             html_content += f"<li>{rank}. <strong>{label}</strong> (Score: {score:.4f})</li>"
         html_content += "</ul>"
 
         if best_match:
-            html_content += f"<h2>Meilleure correspondance Flickr</h2><img src='{best_match}' style='max-width:500px;height:auto;'>"
+            html_content += f"<h2>Meilleure correspondance Flickr</h2><img src='{best_match}' style='max-width:350px;height:auto;'>"
         else:
             html_content += "<h2>Aucune correspondance trouvée sur Flickr.</h2>"
 

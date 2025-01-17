@@ -25,5 +25,6 @@ npm run watch (va compiler le front à chaque sauvegarde)
 Tapez la commande :
 
 ```bash
-python .\backend\server.py
+cd backend
+python server.py
 ```
