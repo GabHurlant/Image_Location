@@ -11,7 +11,7 @@ import exifread
 # Configurer le logging
 logging.basicConfig(
     level=logging.DEBUG,
-    format='%(asctime)s - %(levellevel)s - %(message)s',
+    format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
         logging.FileHandler("server.log"),
         logging.StreamHandler()
@@ -111,7 +111,6 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
         # Servir les fichiers du dossier uploads
         if self.path.startswith("/uploads/"):
             file_path = os.path.join(UPLOAD_FOLDER, self.path[len("/uploads/"):])
-            logging.debug(f"Demande de fichier : {file_path}")
             if os.path.exists(file_path):
                 self.send_response(200)
                 if self.path.endswith(".jpg") or self.path.endswith(".jpeg") or self.path.endswith(".png"):
@@ -119,10 +118,8 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
                 self.end_headers()
                 with open(file_path, "rb") as file:
                     self.wfile.write(file.read())
-                logging.debug(f"Fichier servi : {file_path}")
             else:
                 self.send_error(404, "Fichier non trouvé")
-                logging.debug(f"Fichier non trouvé : {file_path}")
             return
 
     def do_POST(self):
@@ -151,21 +148,15 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
                         with open(file_path, 'wb') as f:
                             f.write(file_data.rstrip(b"\r\n--"))
 
-                        logging.debug(f"Fichier téléchargé : {file_path}")
-
                         if os.listdir(UPLOAD_FOLDER):
                             # Exécuter le script app.py après le téléchargement du fichier
                             script_path = os.path.join(os.path.dirname(__file__), "app.py")
                             try:
-                                logging.debug(f"Exécution du script : {script_path}")
                                 result = subprocess.run(
                                     ["python", script_path],
                                     capture_output=True,
                                     text=True
                                 )
-
-                                logging.debug(f"Résultat stdout : {result.stdout}")
-                                logging.debug(f"Résultat stderr : {result.stderr}")
 
                                 # Vérification du fichier généré
                                 html_file_path = "exif_metadata.html"
@@ -200,19 +191,13 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
 </head>
 <body>
     <h2>Fichier téléchargé : {filename}</h2>
-    <img src="/uploads/{filename}" alt="Image téléchargée" style="max-width: 100%; height: auto;">
-    <h2>Résultat du script app.py :</h2>
     <pre>{result.stdout}</pre>
-    <h2>Erreurs :</h2>
-    <pre>{result.stderr}</pre>
     {exif_metadata_content}
     {gps_info}
     <h2>Niveau de confiance : {confidence_level}/100</h2>
 </body>
 </html>
 """.encode('utf-8'))
-
-                                logging.debug(f"Page HTML générée avec succès pour le fichier : {filename}")
 
                             except Exception as e:
                                 logging.error(f"Erreur lors de l'exécution du script app.py : {e}")
@@ -248,7 +233,6 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
 </body>
 </html>
 """.encode('utf-8'))
-                            logging.debug("Le dossier uploads est vide.")
                         return
 
             self.send_response(400)
@@ -266,7 +250,6 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
 </body>
 </html>
 """.encode('utf-8'))
-            logging.debug("Aucun fichier sélectionné ou fichier invalide.")
 
 def run(server_class=HTTPServer, handler_class=SimpleHTTPRequestHandler, port=8080):
     server_address = ('', port)
