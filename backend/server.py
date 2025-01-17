@@ -155,7 +155,7 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
                                 if gps_metadata and gps_metadata.get('Latitude') != 0 and gps_metadata.get('Longitude') != 0:
                                     gps_info = f"<h2>Informations GPS :</h2><ul><li>Latitude: {gps_metadata.get('Latitude')}</li><li>Longitude: {gps_metadata.get('Longitude')}</li></ul>"
                                 else:
-                                    gps_info = f"<h2>Informations GPS :</h2><ul><li>Latitude: {gps_metadata.get('Latitude')}</li><li>Longitude: {gps_metadata.get('Longitude')}</li></ul><span> Géolocalisation impossible</span>"
+                                    gps_info = f"<h2>Informations GPS :</h2><ul><li>Latitudes: {gps_metadata.get('Latitude')}</li><li>Longitude: {gps_metadata.get('Longitude')}</li></ul><span> Géolocalisation impossible</span>"
 
                                 # Afficher la sortie du script, l'image téléchargée et les métadonnées GPS
                                 self.send_response(200)
