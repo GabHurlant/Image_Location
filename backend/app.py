@@ -9,10 +9,10 @@ from skimage.io import imread
 import numpy as np
 from tensorflow.image import resize
 from tensorflow.keras.applications.efficientnet import preprocess_input
-import base64
 import flickrapi
-import cv2
 import requests
+import cv2
+import webbrowser
 
 # Paramètres de l'API Flickr
 api_key = '261be8e647c2c815285b36e961dea61c'  # Remplace par ta propre clé API
@@ -24,13 +24,21 @@ flickr = flickrapi.FlickrAPI(api_key, api_secret, format='parsed-json')
 # Définir le répertoire actuel
 current_directory = os.getcwd()
 
-# Fonction de débogage
-def debug(message):
-    print(f"[DEBUG] {message}")
-
 # Chemin du dossier contenant les images
 path = os.path.join(current_directory, "uploads/")
 os.makedirs("flickr_images", exist_ok=True)  # Créer le dossier Flickr si nécessaire
+
+# Supprimer toutes les images déjà présentes dans le dossier 'flickr_images'
+def clear_flickr_images_directory():
+    folder = "flickr_images"
+    for file_path in glob.glob(os.path.join(folder, "*")):
+        try:
+            os.remove(file_path)  # Supprimer le fichier
+        except Exception:
+            pass  # Ignorer les erreurs liées à la suppression
+
+# Supprimer les images dans le dossier 'flickr_images' avant traitement
+clear_flickr_images_directory()  # Supprimer les anciennes images dans flickr_images
 
 # Recherche des fichiers image
 image_files = glob.glob(os.path.join(path, "*.jpg")) + \
@@ -38,12 +46,11 @@ image_files = glob.glob(os.path.join(path, "*.jpg")) + \
               glob.glob(os.path.join(path, "*.png"))
 
 if image_files:
-    image_path = image_files[0]  # Utiliser la première image trouvée
-    try:
-        with open(image_path, 'rb') as image_file:
-            # Lire les métadonnées EXIF
-            tags = exifread.process_file(image_file, details=False)
+    # Trouver le fichier le plus récemment modifié
+    latest_file = max(image_files, key=os.path.getmtime)
+    image_path = latest_file  # Utiliser le fichier le plus récemment modifié
 
+    try:
         # Prétraiter l'image pour EfficientNetB0
         image = imread(image_path)
         image_size = 224
@@ -61,12 +68,9 @@ if image_files:
 
         # Rechercher sur Flickr avec les termes séparés par une virgule et un espace
         search_term = ", ".join(best_predictions)  # Ajouter un espace après la virgule
-        print(f"Termes de recherche pour Flickr : {search_term}")
-
 
         # Effectuer la recherche sur Flickr
         photos = flickr.photos.search(text=search_term, per_page=10, page=1, sort='relevance')
-        print(f"Réponse Flickr : {photos}")
 
         # Télécharger les images récupérées
         image_paths = []
@@ -129,12 +133,10 @@ if image_files:
             html_file.write(html_content)
 
         # Ouvrir automatiquement dans le navigateur
-        import webbrowser
         webbrowser.open(f"file://{os.path.abspath('result.html')}")
 
-
-        print("Analyse terminée. Résultats enregistrés dans 'result.html'.")
     except Exception as e:
-        print(f"Erreur : {e}")
+        pass  # Ignore toute exception
+
 else:
-    print("Aucune image trouvée dans le dossier 'uploads'.")
+    pass  # Aucun fichier trouvé, rien à faire
