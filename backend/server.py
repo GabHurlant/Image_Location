@@ -5,6 +5,7 @@ from email.parser import BytesParser
 from email.policy import default
 import time
 import subprocess
+import exifread
 
 # Configurer le logging
 logging.basicConfig(
@@ -15,7 +16,6 @@ logging.basicConfig(
         logging.StreamHandler()
     ]
 )
-
 
 UPLOAD_FOLDER = os.path.join(os.path.dirname(__file__), "uploads")
 MAX_FILE_AGE = 60
@@ -35,6 +35,21 @@ def delete_old_files():
 delete_old_files()
 
 FRONTEND_FOLDER = os.path.join(os.path.dirname(__file__), "../frontend")
+
+def get_gps_metadata(image_path):
+    with open(image_path, 'rb') as image_file:
+        tags = exifread.process_file(image_file, details=False)
+        gps_info = {}
+        if 'GPS GPSLatitude' in tags and 'GPS GPSLongitude' in tags:
+            latitude = tags['GPS GPSLatitude']
+            longitude = tags['GPS GPSLongitude']
+            if latitude.values[0].num == 0 and longitude.values[0].num == 0:
+                gps_info['Latitude'] = 0
+                gps_info['Longitude'] = 0
+            else:
+                gps_info['Latitude'] = latitude
+                gps_info['Longitude'] = longitude
+        return gps_info
 
 class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
     def do_GET(self):
@@ -58,11 +73,31 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
                     self.send_header("Content-type", "application/javascript")
                 elif self.path.endswith(".ico"):
                     self.send_header("Content-type", "image/x-icon")
+                elif self.path.endswith(".jpg") or self.path.endswith(".jpeg") or self.path.endswith(".png"):
+                    self.send_header("Content-type", "image/jpeg")
                 self.end_headers()
                 with open(file_path, "rb") as file:
                     self.wfile.write(file.read())
             else:
                 self.send_error(404)
+            return
+
+        # Servir les fichiers du dossier uploads
+        if self.path.startswith("/uploads/"):
+            file_path = os.path.join(UPLOAD_FOLDER, self.path[len("/uploads/"):])
+            logging.debug(f"Demande de fichier : {file_path}")
+            if os.path.exists(file_path):
+                self.send_response(200)
+                if self.path.endswith(".jpg") or self.path.endswith(".jpeg") or self.path.endswith(".png"):
+                    self.send_header("Content-type", "image/jpeg")
+                self.end_headers()
+                with open(file_path, "rb") as file:
+                    self.wfile.write(file.read())
+                logging.debug(f"Fichier servi : {file_path}")
+            else:
+                self.send_error(404, "Fichier non trouvé")
+                logging.debug(f"Fichier non trouvé : {file_path}")
+            return
 
     def do_POST(self):
         if self.path == "/":
@@ -90,6 +125,8 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
                         with open(file_path, 'wb') as f:
                             f.write(file_data.rstrip(b"\r\n--"))
 
+                        logging.debug(f"Fichier téléchargé : {file_path}")
+
                         if os.listdir(UPLOAD_FOLDER):
                             # Exécuter le script app.py après le téléchargement du fichier
                             script_path = os.path.join(os.path.dirname(__file__), "app.py")
@@ -113,7 +150,14 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
                                     logging.error(f"Le fichier {html_file_path} n'a pas été généré.")
                                     exif_metadata_content = "<h2>Erreur : Le fichier exif_metadata.html est introuvable.</h2>"
 
-                                # Afficher la sortie du script et l'image téléchargée
+                                # Lire les métadonnées GPS
+                                gps_metadata = get_gps_metadata(file_path)
+                                if gps_metadata and gps_metadata.get('Latitude') != 0 and gps_metadata.get('Longitude') != 0:
+                                    gps_info = f"<h2>Informations GPS :</h2><ul><li>Latitude: {gps_metadata.get('Latitude')}</li><li>Longitude: {gps_metadata.get('Longitude')}</li></ul>"
+                                else:
+                                    gps_info = f"<h2>Informations GPS :</h2><ul><li>Latitude: {gps_metadata.get('Latitude')}</li><li>Longitude: {gps_metadata.get('Longitude')}</li></ul><span> Géolocalisation impossible</span>"
+
+                                # Afficher la sortie du script, l'image téléchargée et les métadonnées GPS
                                 self.send_response(200)
                                 self.send_header("Content-type", "text/html; charset=utf-8")
                                 self.end_headers()
@@ -126,15 +170,18 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
 </head>
 <body>
     <h2>Fichier téléchargé : {filename}</h2>
-    <img src="../uploads/{filename}" alt="Image téléchargée" style="max-width: 100%; height: auto;">
+    <img src="/uploads/{filename}" alt="Image téléchargée" style="max-width: 100%; height: auto;">
     <h2>Résultat du script app.py :</h2>
     <pre>{result.stdout}</pre>
     <h2>Erreurs :</h2>
     <pre>{result.stderr}</pre>
     {exif_metadata_content}
+    {gps_info}
 </body>
 </html>
 """.encode('utf-8'))
+
+                                logging.debug(f"Page HTML générée avec succès pour le fichier : {filename}")
 
                             except Exception as e:
                                 logging.error(f"Erreur lors de l'exécution du script app.py : {e}")
@@ -170,6 +217,7 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
 </body>
 </html>
 """.encode('utf-8'))
+                            logging.debug("Le dossier uploads est vide.")
                         return
 
             self.send_response(400)
@@ -187,6 +235,7 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
 </body>
 </html>
 """.encode('utf-8'))
+            logging.debug("Aucun fichier sélectionné ou fichier invalide.")
 
 def run(server_class=HTTPServer, handler_class=SimpleHTTPRequestHandler, port=8080):
     server_address = ('', port)
