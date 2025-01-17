@@ -1,3 +1,5 @@
 node_modules/
 backend/exif_metadata.html
 backend/server.log
+backend/result.html
+backend/flickr_images/
