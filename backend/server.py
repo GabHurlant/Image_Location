@@ -4,13 +4,14 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 from email.parser import BytesParser
 from email.policy import default
 import time
+from datetime import datetime
 import subprocess
 import exifread
 
 # Configurer le logging
 logging.basicConfig(
     level=logging.DEBUG,
-    format='%(asctime)s - %(levelname)s - %(message)s',
+    format='%(asctime)s - %(levellevel)s - %(message)s',
     handlers=[
         logging.FileHandler("server.log"),
         logging.StreamHandler()
@@ -61,8 +62,8 @@ def calculate_confidence_level(tags, gps_metadata):
 
     # Vérifier la cohérence des dates et heures de prise de la photo
     if 'EXIF DateTimeOriginal' in tags and 'EXIF DateTimeDigitized' in tags:
-        date_time_original = tags['EXIF DateTimeOriginal']
-        date_time_digitized = tags['EXIF DateTimeDigitized']
+        date_time_original = datetime.strptime(str(tags['EXIF DateTimeOriginal']), '%Y:%m:%d %H:%M:%S')
+        date_time_digitized = datetime.strptime(str(tags['EXIF DateTimeDigitized']), '%Y:%m:%d %H:%M:%S')
         if date_time_original == date_time_digitized:
             confidence += 50  # Ajouter 50 points si les dates et heures sont cohérentes
 
@@ -177,7 +178,7 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
                                 if gps_metadata and gps_metadata.get('Latitude') != 0 and gps_metadata.get('Longitude') != 0:
                                     gps_info = f"<h2>Informations GPS :</h2><ul><li>Latitude: {gps_metadata.get('Latitude')}</li><li>Longitude: {gps_metadata.get('Longitude')}</li></ul>"
                                 else:
-                                    gps_info = f"<h2>Informations GPS :</h2><ul><li>Latitude: {gps_metadata.get('Latitude')}</li><li>Longitude: {gps_metadata.get('Longitude')}</li></ul><h2> géolocalisation impossible</h2>"
+                                    gps_info = f"<h2>Informations GPS :</h2><ul><li>Latitude: {gps_metadata.get('Latitude')}</li><li>Longitude: {gps_metadata.get('Longitude')}</li></ul><h2>Geolocalisation impossible</h2>"
 
                                 # Calculer le niveau de confiance
                                 confidence_level = calculate_confidence_level(tags, gps_metadata)
