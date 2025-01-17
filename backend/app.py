@@ -32,6 +32,19 @@ def debug(message):
 path = os.path.join(current_directory, "uploads/")
 os.makedirs("flickr_images", exist_ok=True)  # Créer le dossier Flickr si nécessaire
 
+# Supprimer toutes les images déjà présentes dans le dossier 'flickr_images'
+def clear_flickr_images_directory():
+    folder = "flickr_images"
+    for file_path in glob.glob(os.path.join(folder, "*")):
+        try:
+            os.remove(file_path)  # Supprimer le fichier
+            debug(f"Image supprimée de 'flickr_images' : {file_path}")
+        except Exception as e:
+            debug(f"Erreur lors de la suppression de {file_path} de 'flickr_images': {e}")
+
+# Supprimer les images dans le dossier 'flickr_images' avant traitement
+clear_flickr_images_directory()  # Supprimer les anciennes images dans flickr_images
+
 # Recherche des fichiers image
 image_files = glob.glob(os.path.join(path, "*.jpg")) + \
               glob.glob(os.path.join(path, "*.jpeg")) + \
@@ -62,7 +75,6 @@ if image_files:
         # Rechercher sur Flickr avec les termes séparés par une virgule et un espace
         search_term = ", ".join(best_predictions)  # Ajouter un espace après la virgule
         print(f"Termes de recherche pour Flickr : {search_term}")
-
 
         # Effectuer la recherche sur Flickr
         photos = flickr.photos.search(text=search_term, per_page=10, page=1, sort='relevance')
@@ -132,8 +144,12 @@ if image_files:
         import webbrowser
         webbrowser.open(f"file://{os.path.abspath('result.html')}")
 
-
         print("Analyse terminée. Résultats enregistrés dans 'result.html'.")
+
+        # Supprimer l'image dans uploads après traitement
+        os.remove(image_path)
+        debug(f"Image supprimée du dossier 'uploads' : {image_path}")
+
     except Exception as e:
         print(f"Erreur : {e}")
 else:
