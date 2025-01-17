@@ -51,6 +51,27 @@ def get_gps_metadata(image_path):
                 gps_info['Longitude'] = longitude
         return gps_info
 
+def get_exif_tags(image_path):
+    with open(image_path, 'rb') as image_file:
+        tags = exifread.process_file(image_file, details=False)
+    return tags
+
+def calculate_confidence_level(tags, gps_metadata):
+    confidence = 0
+
+    # Vérifier la cohérence des dates et heures de prise de la photo
+    if 'EXIF DateTimeOriginal' in tags and 'EXIF DateTimeDigitized' in tags:
+        date_time_original = tags['EXIF DateTimeOriginal']
+        date_time_digitized = tags['EXIF DateTimeDigitized']
+        if date_time_original == date_time_digitized:
+            confidence += 50  # Ajouter 50 points si les dates et heures sont cohérentes
+
+    # Vérifier la géolocalisation
+    if gps_metadata and gps_metadata.get('Latitude') != 0 and gps_metadata.get('Longitude') != 0:
+        confidence += 50  # Ajouter 50 points si la géolocalisation est présente et valide
+
+    return confidence
+
 class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
     def do_GET(self):
         if self.path == "/":
@@ -150,14 +171,18 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
                                     logging.error(f"Le fichier {html_file_path} n'a pas été généré.")
                                     exif_metadata_content = "<h2>Erreur : Le fichier exif_metadata.html est introuvable.</h2>"
 
-                                # Lire les métadonnées GPS
+                                # Lire les métadonnées EXIF et GPS
+                                tags = get_exif_tags(file_path)
                                 gps_metadata = get_gps_metadata(file_path)
                                 if gps_metadata and gps_metadata.get('Latitude') != 0 and gps_metadata.get('Longitude') != 0:
                                     gps_info = f"<h2>Informations GPS :</h2><ul><li>Latitude: {gps_metadata.get('Latitude')}</li><li>Longitude: {gps_metadata.get('Longitude')}</li></ul>"
                                 else:
-                                    gps_info = f"<h2>Informations GPS :</h2><ul><li>Latitudes: {gps_metadata.get('Latitude')}</li><li>Longitude: {gps_metadata.get('Longitude')}</li></ul><span> Géolocalisation impossible</span>"
+                                    gps_info = f"<h2>Informations GPS :</h2><ul><li>Latitude: {gps_metadata.get('Latitude')}</li><li>Longitude: {gps_metadata.get('Longitude')}</li></ul><h2> géolocalisation impossible</h2>"
 
-                                # Afficher la sortie du script, l'image téléchargée et les métadonnées GPS
+                                # Calculer le niveau de confiance
+                                confidence_level = calculate_confidence_level(tags, gps_metadata)
+
+                                # Afficher la sortie du script, l'image téléchargée, les métadonnées GPS et le niveau de confiance
                                 self.send_response(200)
                                 self.send_header("Content-type", "text/html; charset=utf-8")
                                 self.end_headers()
@@ -177,6 +202,7 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
     <pre>{result.stderr}</pre>
     {exif_metadata_content}
     {gps_info}
+    <h2>Niveau de confiance : {confidence_level}/100</h2>
 </body>
 </html>
 """.encode('utf-8'))
