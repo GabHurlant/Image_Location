@@ -114,7 +114,9 @@ if image_files:
                 best_match = flickr_image_path
 
         # Générer le fichier HTML
-        html_content = "<html><meta charset='utf-8'><head><title>Analyse Image</title></head><body>"
+        html_content = "<html><meta charset='utf-8'><head><title>Analyse Image</title>"
+        html_content += "<link rel='stylesheet' href='../frontend/main.css'>"
+        html_content += "</head><body>"
         html_content += f"<h1>Image analysée : {os.path.basename(image_path)}</h1>"
         html_content += f"<img src='uploads/{os.path.basename(image_path)}' ' style='max-width:350px;height:auto;'>"
         html_content += "<h2>Prédictions du modèle</h2><ul>"
