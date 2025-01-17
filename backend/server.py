@@ -1,12 +1,9 @@
 import os
 import logging
 from http.server import BaseHTTPRequestHandler, HTTPServer
-from email.parser import BytesParser
-from email.policy import default
 import time
 from datetime import datetime
 import subprocess
-import exifread
 
 # Configurer le logging
 logging.basicConfig(
@@ -36,46 +33,6 @@ def delete_old_files():
 delete_old_files()
 
 FRONTEND_FOLDER = os.path.join(os.path.dirname(__file__), "../frontend")
-
-def get_gps_metadata(image_path):
-    with open(image_path, 'rb') as image_file:
-        tags = exifread.process_file(image_file, details=False)
-        gps_info = {}
-        if 'GPS GPSLatitude' in tags and 'GPS GPSLongitude' in tags:
-            latitude = tags['GPS GPSLatitude']
-            longitude = tags['GPS GPSLongitude']
-            if latitude.values[0].num == 0 and longitude.values[0].num == 0:
-                gps_info['Latitude'] = 0
-                gps_info['Longitude'] = 0
-            else:
-                gps_info['Latitude'] = latitude
-                gps_info['Longitude'] = longitude
-        return gps_info
-
-def get_exif_tags(image_path):
-    with open(image_path, 'rb') as image_file:
-        tags = exifread.process_file(image_file, details=False)
-    return tags
-
-def calculate_confidence_level(tags, gps_metadata):
-    confidence = 0
-
-    # Vérifier si des métadonnées EXIF sont présentes
-    if not tags:
-        return confidence  # Retourner 0 si aucune métadonnée EXIF n'est trouvée
-
-    # Vérifier la cohérence des dates et heures de prise de la photo
-    if 'EXIF DateTimeOriginal' in tags and 'EXIF DateTimeDigitized' in tags:
-        date_time_original = datetime.strptime(str(tags['EXIF DateTimeOriginal']), '%Y:%m:%d %H:%M:%S')
-        date_time_digitized = datetime.strptime(str(tags['EXIF DateTimeDigitized']), '%Y:%m:%d %H:%M:%S')
-        if date_time_original == date_time_digitized:
-            confidence += 50  # Ajouter 50 points si les dates et heures sont cohérentes
-
-    # Vérifier la géolocalisation
-    if gps_metadata and gps_metadata.get('Latitude') != 0 and gps_metadata.get('Longitude') != 0:
-        confidence += 50  # Ajouter 50 points si la géolocalisation est présente et valide
-
-    return confidence
 
 class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
     def do_GET(self):
@@ -158,18 +115,7 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
                                     text=True
                                 )
 
-                                # Lire les métadonnées EXIF et GPS
-                                tags = get_exif_tags(file_path)
-                                gps_metadata = get_gps_metadata(file_path)
-                                if gps_metadata and gps_metadata.get('Latitude') != 0 and gps_metadata.get('Longitude') != 0:
-                                    gps_info = f"<h2>Informations GPS :</h2><ul><li>Latitude: {gps_metadata.get('Latitude')}</li><li>Longitude: {gps_metadata.get('Longitude')}</li></ul>"
-                                else:
-                                    gps_info = f"<h2>Informations GPS :</h2><ul><li>Latitude: {gps_metadata.get('Latitude')}</li><li>Longitude: {gps_metadata.get('Longitude')}</li></ul><h2>Geolocalisation impossible</h2>"
-
-                                # Calculer le niveau de confiance
-                                confidence_level = calculate_confidence_level(tags, gps_metadata)
-
-                                # Afficher la sortie du script, l'image téléchargée, les métadonnées GPS et le niveau de confiance
+                                # Afficher la sortie du script et l'image téléchargée
                                 self.send_response(200)
                                 self.send_header("Content-type", "text/html; charset=utf-8")
                                 self.end_headers()
@@ -182,8 +128,6 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
 </head>
 <body>
     <h2>Fichier téléchargé : {filename}</h2>
-    {gps_info}
-    <h2>Niveau de confiance : {confidence_level}/100</h2>
 </body>
 </html>
 """.encode('utf-8'))
