@@ -1,19 +1,104 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="main.css">
-    <title>Analyseur image</title>
+    <title>Uploader un fichier</title>
+    <style>
+        #loadingBar {
+            display: none;
+            width: 0;
+            height: 5px;
+            background-color: #4caf50;
+            transition: width 0.5s ease;
+        }
+
+        #loadingContainer {
+            width: 100%;
+            background-color: #ddd;
+            height: 5px;
+            margin-top: 10px;
+            display: none;
+        }
+
+        #submitButton:disabled {
+            background-color: #aaa;
+            cursor: not-allowed;
+        }
+    </style>
 </head>
 <body>
-    <h1>Image Analyzer</h1>
-    <div class="container">
-        <form action="/" method="post" enctype="multipart/form-data">
-            <input type="file" name="file" id="file">
-            <button type="submit" name="submit">Upload</button>
-        </form>
+    <h1>Uploader un fichier</h1>
+    <form id="uploadForm">
+        <input type="file" id="fileInput" name="file" required>
+        <button type="submit" id="submitButton">Envoyer</button>
+    </form>
+    <div id="message"></div>
+
+    <div id="loadingContainer">
+        <div id="loadingBar"></div>
     </div>
-    
+
+    <script>
+        const form = document.getElementById('uploadForm');
+        const messageDiv = document.getElementById('message');
+        const submitButton = document.getElementById('submitButton');
+        const loadingContainer = document.getElementById('loadingContainer');
+        const loadingBar = document.getElementById('loadingBar');
+
+        form.addEventListener('submit', async (event) => {
+            event.preventDefault();
+
+            const fileInput = document.getElementById('fileInput');
+            const file = fileInput.files[0];
+            if (!file) {
+                messageDiv.textContent = "Veuillez sélectionner un fichier.";
+                return;
+            }
+
+            submitButton.disabled = true;
+            messageDiv.textContent = "Analyse en cours...";
+            loadingContainer.style.display = "block";
+            loadingBar.style.display = "block";
+            loadingBar.style.width = "0";
+
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += 5;
+                if (progress <= 100) {
+                    loadingBar.style.width = `${progress}%`;
+                } else {
+                    clearInterval(interval);
+                }
+            }, 500);
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            try {
+                const response = await fetch('/', {
+                    method: 'POST',
+                    body: formData,
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    messageDiv.textContent = result.message || "Fichier téléchargé avec succès.";
+                } else {
+                    const error = await response.json();
+                    messageDiv.textContent = error.error || "Une erreur est survenue.";
+                }
+            } catch (err) {
+                console.error(err);
+                messageDiv.textContent = "Impossible d'uploader le fichier.";
+            } finally {
+                clearInterval(interval);
+                submitButton.disabled = false;
+                loadingContainer.style.display = "none";
+                loadingBar.style.width = "0";
+            }
+        });
+    </script>
 </body>
 </html>

@@ -2,7 +2,6 @@ import os
 import logging
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import time
-from datetime import datetime
 import subprocess
 
 # Configurer le logging
@@ -18,6 +17,7 @@ logging.basicConfig(
 UPLOAD_FOLDER = os.path.join(os.path.dirname(__file__), "uploads")
 MAX_FILE_AGE = 60
 
+# Supprimer les fichiers anciens dans le dossier d'uploads
 def delete_old_files():
     current_time = time.time()
     for filename in os.listdir(UPLOAD_FOLDER):
@@ -65,28 +65,14 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
                 self.send_error(404)
             return
 
-        # Servir les fichiers du dossier uploads
-        if self.path.startswith("/uploads/"):
-            file_path = os.path.join(UPLOAD_FOLDER, self.path[len("/uploads/"):])
-            if os.path.exists(file_path):
-                self.send_response(200)
-                if self.path.endswith(".jpg") or self.path.endswith(".jpeg") or self.path.endswith(".png"):
-                    self.send_header("Content-type", "image/jpeg")
-                self.end_headers()
-                with open(file_path, "rb") as file:
-                    self.wfile.write(file.read())
-            else:
-                self.send_error(404, "Fichier non trouvé")
-            return
-
     def do_POST(self):
         if self.path == "/":
             content_type = self.headers['Content-Type']
             if not content_type.startswith('multipart/form-data'):
                 self.send_response(400)
-                self.send_header("Content-type", "text/html; charset=utf-8")
+                self.send_header("Content-Type", "application/json; charset=utf-8")
                 self.end_headers()
-                self.wfile.write("<h1>Erreur : Content-Type non supporté.</h1>".encode('utf-8'))
+                self.wfile.write('{"error": "Content-Type non supporté."}'.encode('utf-8'))
                 return
 
             length = int(self.headers['Content-Length'])
@@ -105,84 +91,24 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
                         with open(file_path, 'wb') as f:
                             f.write(file_data.rstrip(b"\r\n--"))
 
-                        if os.listdir(UPLOAD_FOLDER):
-                            # Exécuter le script app.py après le téléchargement du fichier
-                            script_path = os.path.join(os.path.dirname(__file__), "app.py")
-                            try:
-                                result = subprocess.run(
-                                    ["python", script_path],
-                                    capture_output=True,
-                                    text=True
-                                )
+                        logging.info(f"Fichier téléchargé : {filename}")
 
-                                # Afficher la sortie du script et l'image téléchargée
-                                self.send_response(200)
-                                self.send_header("Content-type", "text/html; charset=utf-8")
-                                self.end_headers()
-                                self.wfile.write(f"""
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <title>Upload réussi</title>
-</head>
-<body>
-    <h2>Fichier téléchargé : {filename}</h2>
-</body>
-</html>
-""".encode('utf-8'))
+                        script_path = os.path.join(os.path.dirname(__file__), "app.py")
+                        try:
+                            subprocess.run(["python", script_path], capture_output=True, text=True)
+                        except Exception as e:
+                            logging.error(f"Erreur lors de l'exécution du script app.py : {e}")
 
-                            except Exception as e:
-                                logging.error(f"Erreur lors de l'exécution du script app.py : {e}")
-                                self.send_response(500)
-                                self.send_header("Content-type", "text/html; charset=utf-8")
-                                self.end_headers()
-                                self.wfile.write(f"""
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <title>Erreur</title>
-</head>
-<body>
-    <h1>Erreur : Échec de l'exécution du script app.py</h1>
-    <pre>{str(e)}</pre>
-</body>
-</html>
-""".encode('utf-8'))
-                        else:
-                            self.send_response(500)
-                            self.send_header("Content-type", "text/html; charset=utf-8")
-                            self.end_headers()
-                            self.wfile.write("""
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <title>Erreur</title>
-</head>
-<body>
-    <h1>Erreur : Le dossier uploads est vide.</h1>
-</body>
-</html>
-""".encode('utf-8'))
+                        self.send_response(200)
+                        self.send_header("Content-Type", "application/json; charset=utf-8")
+                        self.end_headers()
+                        self.wfile.write('{"message": "Fichier téléchargé avec succès."}'.encode('utf-8'))
                         return
 
             self.send_response(400)
-            self.send_header("Content-type", "text/html; charset=utf-8")
+            self.send_header("Content-Type", "application/json; charset=utf-8")
             self.end_headers()
-            self.wfile.write("""
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <title>Erreur</title>
-</head>
-<body>
-    <h1>Erreur : Aucun fichier sélectionné ou fichier invalide.</h1>
-</body>
-</html>
-""".encode('utf-8'))
+            self.wfile.write('{"error": "Aucun fichier valide détecté."}'.encode('utf-8'))
 
 def run(server_class=HTTPServer, handler_class=SimpleHTTPRequestHandler, port=8080):
     server_address = ('', port)
@@ -191,4 +117,6 @@ def run(server_class=HTTPServer, handler_class=SimpleHTTPRequestHandler, port=80
     httpd.serve_forever()
 
 if __name__ == "__main__":
+    if not os.path.exists(UPLOAD_FOLDER):
+        os.makedirs(UPLOAD_FOLDER)
     run()

@@ -16,8 +16,8 @@ import webbrowser
 from datetime import datetime
 
 # Paramètres de l'API Flickr
-api_key = '261be8e647c2c815285b36e961dea61c'  # Remplace par ta propre clé API
-api_secret = '95a053a26c49ec1c'  # Remplace par ta propre clé secrète
+api_key = '261be8e647c2c815285b36e961dea61c'
+api_secret = '95a053a26c49ec1c'
 
 # Initialiser l'API de Flickr
 flickr = flickrapi.FlickrAPI(api_key, api_secret, format='parsed-json')
@@ -27,19 +27,18 @@ current_directory = os.getcwd()
 
 # Chemin du dossier contenant les images
 path = os.path.join(current_directory, "uploads/")
-os.makedirs("flickr_images", exist_ok=True)  # Créer le dossier Flickr si nécessaire
+os.makedirs("flickr_images", exist_ok=True)
 
 # Supprimer toutes les images déjà présentes dans le dossier 'flickr_images'
 def clear_flickr_images_directory():
     folder = "flickr_images"
     for file_path in glob.glob(os.path.join(folder, "*")):
         try:
-            os.remove(file_path)  # Supprimer le fichier
+            os.remove(file_path)
         except Exception:
-            pass  # Ignorer les erreurs liées à la suppression
+            pass
 
-# Supprimer les images dans le dossier 'flickr_images' avant traitement
-clear_flickr_images_directory()  # Supprimer les anciennes images dans flickr_images
+clear_flickr_images_directory()
 
 # Recherche des fichiers image
 image_files = glob.glob(os.path.join(path, "*.jpg")) + \
@@ -82,25 +81,25 @@ def calculate_confidence_level(tags, gps_metadata):
 
     # Vérifier si des métadonnées EXIF sont présentes
     if not tags:
-        return confidence  # Retourner 0 si aucune métadonnée EXIF n'est trouvée
+        return confidence
 
     # Vérifier la cohérence des dates et heures de prise de la photo
     if 'EXIF DateTimeOriginal' in tags and 'EXIF DateTimeDigitized' in tags:
         date_time_original = datetime.strptime(str(tags['EXIF DateTimeOriginal']), '%Y:%m:%d %H:%M:%S')
         date_time_digitized = datetime.strptime(str(tags['EXIF DateTimeDigitized']), '%Y:%m:%d %H:%M:%S')
         if date_time_original == date_time_digitized:
-            confidence += 50  # Ajouter 50 points si les dates et heures sont cohérentes
+            confidence += 50 
 
     # Vérifier la géolocalisation
     if gps_metadata and gps_metadata.get('Latitude') != 0 and gps_metadata.get('Longitude') != 0:
-        confidence += 50  # Ajouter 50 points si la géolocalisation est présente et valide
+        confidence += 50
 
     return confidence
 
 if image_files:
     # Trouver le fichier le plus récemment modifié
     latest_file = max(image_files, key=os.path.getmtime)
-    image_path = latest_file  # Utiliser le fichier le plus récemment modifié
+    image_path = latest_file
 
     try:
         # Prétraiter l'image pour EfficientNetB0
@@ -113,13 +112,13 @@ if image_files:
         # Charger le modèle et prédire
         model = EfficientNetB0(weights="imagenet")
         y = model.predict(x)
-        decoded = decode_predictions(y, top=5)  # Obtenir les 5 meilleures prédictions
+        decoded = decode_predictions(y, top=5)
 
         # Extraire les deux meilleures prédictions et enlever tout ce qui suit un underscore
         best_predictions = [label.split('_')[0] for (_, label, _) in decoded[0][:2]]
 
         # Rechercher sur Flickr avec les termes séparés par une virgule et un espace
-        search_term = ", ".join(best_predictions)  # Ajouter un espace après la virgule
+        search_term = ", ".join(best_predictions)
 
         # Effectuer la recherche sur Flickr
         photos = flickr.photos.search(text=search_term, per_page=10, page=1, sort='relevance')
@@ -128,7 +127,7 @@ if image_files:
         image_paths = []
         for photo in photos['photos']['photo']:
             photo_id = photo['id']
-            url = flickr.photos.getSizes(photo_id=photo_id)['sizes']['size'][3]['source']  # Taille moyenne
+            url = flickr.photos.getSizes(photo_id=photo_id)['sizes']['size'][3]['source']
             img_name = f"flickr_images/{photo_id}.jpg"
             img_data = requests.get(url).content
             with open(img_name, 'wb') as handler:
@@ -200,11 +199,10 @@ if image_files:
         with open("result.html", "w", encoding="utf-8") as html_file:
             html_file.write(html_content)
 
-        # Ouvrir automatiquement dans le navigateur
         webbrowser.open(f"file://{os.path.abspath('result.html')}")
 
     except Exception as e:
         pass 
 
 else:
-    pass  # Aucun fichier trouvé, rien à faire
+    pass
