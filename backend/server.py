@@ -60,6 +60,10 @@ def get_exif_tags(image_path):
 def calculate_confidence_level(tags, gps_metadata):
     confidence = 0
 
+    # Vérifier si des métadonnées EXIF sont présentes
+    if not tags:
+        return confidence  # Retourner 0 si aucune métadonnée EXIF n'est trouvée
+
     # Vérifier la cohérence des dates et heures de prise de la photo
     if 'EXIF DateTimeOriginal' in tags and 'EXIF DateTimeDigitized' in tags:
         date_time_original = datetime.strptime(str(tags['EXIF DateTimeOriginal']), '%Y:%m:%d %H:%M:%S')
